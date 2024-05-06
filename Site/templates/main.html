@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Predictive Maintainance ML</title>
+</head>
+
+<body>
+    <header>
+        <h1>Induastrial Machine Maintainace Predicting ML</h1>
+    </header>
+    <div class="playground">
+        <div class="file-upload">
+            <!-- Drag and drop file -->
+            <form action="/predict" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" id="file" accept=".csv,.xlsx,.xls" class="inputfile" />
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+
+        <div class="result-display">
+            <!-- Results will be displayed here -->
+            <h2>Results</h2>
+            <div class="results"></div>
+        </div>
+    </div>
+    <div class="loading-spinner"></div>
+</body>
+<script src="{{ url_for('static', filename='script.js')}}"></script>
+
+</html>
