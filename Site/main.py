@@ -6,7 +6,7 @@ from pandas import json_normalize
 
 from werkzeug.utils import secure_filename
 
-model = joblib.load('../Predictive_maintenance_model V2.pkl')
+model = joblib.load('../Predictive_maintenance_model V3.pkl')
 
 
 def handle_file_upload():
@@ -30,8 +30,9 @@ def preprocess_data(data):
     # handle missing values
     data.dropna(inplace=True)
     
-    data.drop(columns=['Machine failure'], inplace=True)
     data.drop(columns=['Product ID'], inplace=True)
+    # add Temprature_Diffrence column
+    # data['Temprature_Diffrence'] = data['Process temperature [K]'] - data['Air temperature [K]']
 
     type_mapping = {'L': 1, 'M': 2, 'H': 3}
     data['Type'] = data['Type'].map(type_mapping)
