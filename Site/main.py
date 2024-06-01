@@ -32,7 +32,7 @@ def preprocess_data(data):
     
     data.drop(columns=['Product ID'], inplace=True)
     # add Temprature_Diffrence column
-    # data['Temprature_Diffrence'] = data['Process temperature [K]'] - data['Air temperature [K]']
+    data['Temprature_Diffrence'] = data['Process temperature [K]'] - data['Air temperature [K]']
 
     type_mapping = {'L': 1, 'M': 2, 'H': 3}
     data['Type'] = data['Type'].map(type_mapping)

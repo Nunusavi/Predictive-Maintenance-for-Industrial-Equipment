@@ -25,7 +25,10 @@
         <div class="result-display">
             <!-- Results will be displayed here -->
             <h2>Results</h2>
-            <div class="results"></div>
+            <div class="results">
+                <pre>{{result | tojson | safe}}</pre>
+                {{table |safe}}
+            </div>
         </div>
     </div>
     <div class="loading-spinner"></div>
