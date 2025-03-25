@@ -1,38 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <title>Predictive Maintainance ML</title>
-</head>
+    <title>Predictive Maintenance ML</title>
+    <style>
+      /* HTML: <div class="loader"></div> */
+      .loader {
+        width: 75px;
+        aspect-ratio: 1;
+        --c: conic-gradient(from -90deg, #000 90deg, #0000 0);
+        background: var(--c), var(--c);
+        background-size: 40% 40%;
+        animation: l20 1.5s infinite;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      @keyframes l20 {
+        0%,
+        20% {
+          background-position: 0 0, 0 calc(100% / 3);
+        }
+        33% {
+          background-position: 0 0, calc(100% / 3) calc(100% / 3);
+        }
+        66% {
+          background-position: 0 calc(100% / 3), calc(100% / 3) 0;
+        }
+        80%,
+        100% {
+          background-position: 0 calc(100% / 3), 0 0;
+        }
+      }
 
-<body>
-    <header>
-        <h1>Induastrial Machine Maintainace Predicting ML</h1>
+      .success-animation {
+        margin: 150px auto;
+      }
+
+      .checkmark {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: block;
+        stroke-width: 2;
+        stroke: #4bb71b;
+        stroke-miterlimit: 10;
+        box-shadow: inset 0px 0px 0px #4bb71b;
+        animation: fill 0.4s ease-in-out 0.4s forwards,
+          scale 0.3s ease-in-out 0.9s both;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0 auto;
+      }
+      .checkmark__circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #4bb71b;
+        fill: #fff;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+      }
+
+      .checkmark__check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+      }
+
+      @keyframes stroke {
+        100% {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      @keyframes scale {
+        0%,
+        100% {
+          transform: none;
+        }
+
+        50% {
+          transform: scale3d(1.1, 1.1, 1);
+        }
+      }
+
+      @keyframes fill {
+        100% {
+          box-shadow: inset 0px 0px 0px 30px #4bb71b;
+        }
+      }
+
+      .blur-background {
+        filter: blur(5px);
+        pointer-events: none; /* Prevent interaction with blurred content */
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100 text-gray-800">
+    <header class="bg-blue-600 text-white py-4 shadow-md">
+      <h1 class="text-center text-2xl font-bold">
+        Industrial Machine Maintenance Predicting ML
+      </h1>
     </header>
-    <div class="playground">
-        <div class="file-upload">
-            <!-- Drag and drop file -->
-            <form action="/predict" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" id="file" accept=".csv,.xlsx,.xls" class="inputfile" />
-                <button type="submit">Upload</button>
-            </form>
-        </div>
-
-        <div class="result-display">
-            <!-- Results will be displayed here -->
-            <h2>Results</h2>
-            <div class="results">
-                <pre>{{result | tojson | safe}}</pre>
-                {{table |safe}}
+    <!-- Wrap the main content in a container -->
+    <div id="contentWrapper">
+      <div class="flex justify-evenly items-center min-h-screen">
+        <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-xl">
+          <h2 class="text-xl font-semibold text-center mb-4">
+            Upload Your File
+          </h2>
+          <form
+            action="/predict"
+            method="post"
+            enctype="multipart/form-data"
+            class="space-y-4"
+            id="uploadForm"
+          >
+            <div class="max-w-md mx-auto">
+              <input
+                type="file"
+                name="file"
+                class="w-full text-slate-500 font-medium text-sm bg-white border file:cursor-pointer cursor-pointer file:border-0 file:py-3 file:px-4 file:mr-4 file:bg-gray-100 file:hover:bg-gray-200 file:text-slate-500 rounded"
+              />
+              <p class="text-xs text-slate-500 mt-2">
+                Only Xlsx, CSV, and Xls are Allowed!!
+              </p>
             </div>
+            <button
+              type="submit"
+              class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Upload
+            </button>
+          </form>
         </div>
+      </div>
     </div>
-    <div class="loading-spinner"></div>
-</body>
-<script src="{{ url_for('static', filename='script.js')}}"></script>
+    <div class="loader hidden" id="loadingSpinner"></div>
+    <div class="success-animation hidden" id="successMessage">
+      <svg
+        class="checkmark"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 52 52"
+      >
+        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+        <path
+          class="checkmark__check"
+          fill="none"
+          d="M14.1 27.2l7.1 7.2 16.7-16.8"
+        />
+      </svg>
+    </div>
+  </body>
+  <script>
+    const contentWrapper = document.getElementById("contentWrapper");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    const successMessage = document.getElementById("successMessage");
 
+    document
+      .getElementById("uploadForm")
+      .addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Show the loading spinner and blur the background
+        loadingSpinner.classList.remove("hidden");
+        contentWrapper.classList.add("blur-background");
+
+        // Create a FormData object to send the file via AJAX
+        const formData = new FormData(this);
+
+        // Send the file to the server using AJAX
+        fetch(this.action, {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Hide the loading spinner
+            loadingSpinner.classList.add("hidden");
+
+            if (data.success) {
+              // Show the success message
+              successMessage.style.display = "block";
+
+              // Trigger the file download
+              const downloadUrl = `/download?filename=${encodeURIComponent(
+                data.filename
+              )}`;
+              window.location.href = downloadUrl;
+
+              // Remove the blur after a short delay
+              setTimeout(() => {
+                successMessage.style.display = "none";
+                contentWrapper.classList.remove("blur-background");
+              }, 3000); // Adjust the delay as needed
+            } else {
+              // Show an error message
+              alert(
+                data.error || "An error occurred while processing the file."
+              );
+              contentWrapper.classList.remove("blur-background");
+            }
+          })
+          .catch((error) => {
+            // Hide the loading spinner
+            loadingSpinner.classList.add("hidden");
+
+            // Show an error message
+            alert("An error occurred: " + error.message);
+            contentWrapper.classList.remove("blur-background");
+          });
+      });
+  </script>
 </html>
